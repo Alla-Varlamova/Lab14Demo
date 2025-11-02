@@ -1,0 +1,116 @@
+﻿<Window x:Class="DContextInheritance.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DContextInheritance"
+        mc:Ignorable="d"
+        Title="DataContext Inheritance" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Многоуровневое наследование и переопределение">
+            <StackPanel>
+                <!-- Уровень 1: DataContext окна (CompanyData) -->
+                <TextBlock Text="{Binding CompanyName}"/>
+                <!-- "ТехноКорп" -->
+                <!-- Уровень 2: Переопределение для отдела -->
+                <Border DataContext="{Binding Department}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding DepartmentName}"/>
+                        <!-- "IT Отдел" -->
+                        <TextBlock Text="{Binding EmployeeCount}"/>
+                        <!-- "15" -->
+                        <!-- Уровень 3: Переопределение для сотрудника -->
+                        <StackPanel DataContext="{Binding CurrentEmployee}">
+                            <TextBlock Text="{Binding EmployeeName}"/>
+                            <!-- "Анна Сидорова" -->
+                            <TextBlock Text="{Binding Position}"/>
+                            <!-- "Разработчик" -->
+                        </StackPanel>
+                        <!-- Возврат к контексту отдела -->
+                        <TextBlock Text="{Binding DepartmentName}"/>
+                        <!-- "IT Отдел" -->
+                    </StackPanel>
+                </Border>
+                <!-- Возврат к контексту компании -->
+                <TextBlock Text="{Binding Address}"/>
+                <!-- "ул. Пушкина, 1" -->
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Наследование в шаблонах данных" Grid.Row="1">
+            <StackPanel>
+                <!-- DataContext всего окна - Catalog -->
+                <TextBlock Text="{Binding CatalogName}"/>
+                <!-- "Электроника" -->
+                <ItemsControl ItemsSource="{Binding Products}">
+                    <!-- DataContext для ItemsControl - Catalog -->
+                    <!-- DataContext для каждого элемента - Product -->
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- Внутри DataTemplate DataContext - текущий Product -->
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}"/>
+                                <!-- "Смартфон", "Планшет" -->
+                                <TextBlock Text="{Binding Price}"/>
+                                <!-- "500", "800" -->
+                                <!-- Доступ к родительскому DataContext через RelativeSource -->
+                                <TextBlock Text="{Binding DataContext.CatalogName,
+                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                                <!-- Отобразит "Электроника" для всех элементов -->
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Смешанное использование наследования" Grid.Row="2">
+            <StackPanel>
+                <!-- DataContext окна - ApplicationData -->
+                <!-- Область пользователя -->
+                <GroupBox Header="Пользователь"
+                          DataContext="{Binding CurrentUser}">
+                    <TextBlock Text="{Binding Name}"/>
+                    <!-- "Мария" -->
+                </GroupBox>
+                <!-- Область настроек -->
+                <GroupBox Header="Настройки"
+                          DataContext="{Binding AppSettings}">
+                    <TextBlock Text="{Binding Theme}"/>
+                    <!-- "Темная" -->
+                </GroupBox>
+                <!-- Область с доступом к обоим контекстам -->
+                <GroupBox Header="Сводка">
+                    <StackPanel>
+                        <!-- Явное указание пути через родительский DataContext -->
+                        <TextBlock Text="{Binding CurrentUser.Name}"/>
+                        <!-- "Мария" -->
+                        <TextBlock Text="{Binding AppSettings.Theme}"/>
+                        <!-- "Темная" -->
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Динамическое изменение наследования" Grid.Row="3">
+            <StackPanel>
+                <!-- Этот элемент будет менять отображаемые данные
+                при переключении DataContext окна -->
+                <TextBlock Text="{Binding UserName}"/>
+                <TextBlock Text="{Binding AdminName}"/>
+                <StackPanel>
+                    <!-- Локальное переопределение - не зависит от изменений окна -->
+                    <TextBlock DataContext="{Binding RelativeSource={RelativeSource Self}}"
+                               Text="Статический текст"/>
+                </StackPanel>
+                <Button Content="Режим админа"
+                        Click="SwitchToAdmin_Click"/>
+                <Button Content="Режим пользователя"
+                        Click="SwitchToUser_Click"/>
+            </StackPanel>
+            </GroupBox>
+    </Grid>
+</Window>
